@@ -34,9 +34,6 @@ if( isset( $_GET['updateBtn'] ) ){
 		echo "<script>alert('Data updated successful !')</script>";	
 	}
 }
-
-
-
 ?>
 <!DOCTYPE html>
 		<html lang="en">
@@ -107,9 +104,7 @@ if( isset( $_GET['updateBtn'] ) ){
 
 										";
 									}
-
-									print_r($row);
-
+									// print_r($row);
 								 ?>
 							</table>
 						</div>
