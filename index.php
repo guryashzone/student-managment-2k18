@@ -1,4 +1,8 @@
 <?php 
+session_start();
+if( !isset($_SESSION['login_id']) ){
+	header('location:login.php');
+}
 require( "connection.php" );
 
 if( isset( $_POST['submitBtn'] ) ){
@@ -6,8 +10,11 @@ if( isset( $_POST['submitBtn'] ) ){
 	$email = addslashes($_POST['useremail']);
 	$roll = addslashes($_POST['userroll']);
 	$address = addslashes($_POST['useraddress']);
-
-	$query = "INSERT INTO student_details VALUES( NULL,'$name','$roll','$email','$address' )";
+	$file_name = $_FILES['userimage']['name'];
+	$file_loc  = $_FILES['userimage']['tmp_name']; //size //type
+	$loc = "student_images/".$file_name;
+	move_uploaded_file($file_loc, "student_images/".$file_name);
+	$query = "INSERT INTO student_details VALUES( NULL,'$name','$roll','$email','$address','$loc' )";
 	$res  = mysqli_query( $con , $query );
 	
 	if( !$res ){
@@ -50,9 +57,9 @@ if( isset( $_GET['updateBtn'] ) ){
 				<div class="w3-bar-item w3-large">
 					STUDENT MANAGMENT SYSTEM
 				</div>
-				<div class="w3-bar-item w3-btn w3-right w3-padding w3-hover-white w3-hover-text-red">
-					LOGOUT
-				</div>
+				<a href="logout.php" class="w3-bar-item w3-btn w3-right w3-padding w3-hover-white w3-hover-text-red">
+					Logout
+				</a>
 				<div id="addBtn" class="w3-bar-item w3-btn w3-right w3-padding w3-hover-white w3-hover-text-red">
 					+ STUDENT
 				</div>
@@ -70,6 +77,7 @@ if( isset( $_GET['updateBtn'] ) ){
 						<div>
 							<table class="w3-table w3-hoverable">
 								<tr class="">
+									<th> Student image</th>
 									<th> Student id</th>
 									<th> Student roll</th>
 									<th> Student name</th>
@@ -94,6 +102,7 @@ if( isset( $_GET['updateBtn'] ) ){
 
 										echo "
 											<tr class='student_row' data='$data'>
+												<td> <img src='$row->image_location' class='w3-card-4 w3-circle' style='width:100px;height:100px'> </td>
 												<td> $row->student_id </td>
 												<td> $row->student_roll </td>
 												<td> $row->student_name</td>
@@ -123,7 +132,7 @@ if( isset( $_GET['updateBtn'] ) ){
 							<span class="w3-btn w3-right w3-hover-white w3-circle closeModal" style="margin-top:-9px" id=""> X </span>
 						</div>
 						<div class="w3-padding-large">
-							<form action="" method="POST">
+							<form action="" method="POST" enctype="multipart/form-data">
 								<label>Student name : </label>
 								<input type="text" name="username" class="w3-input" placeholder="Enter student name" required>
 								<br>
@@ -135,6 +144,10 @@ if( isset( $_GET['updateBtn'] ) ){
 								<br>
 								<label>Student address : </label>
 								<textarea name="useraddress" style="width:100%" rows="5" required placeholder="Enter student address.."></textarea>
+								<br>
+								<label>Student image : </label>
+								<input type="file" name="userimage" class="w3-input" accept="image/*" required>
+								
 								<br>
 								<br>
 								<input type="submit" name="submitBtn" class="w3-btn w3-red w3-round" value="Register">
@@ -172,8 +185,6 @@ if( isset( $_GET['updateBtn'] ) ){
 					</div>
 				</div>
 			</div>
-
-
 			<script>
 				$(document).on("click",".student_row",function(){
 					var data = $(this).attr("data");
@@ -207,9 +218,6 @@ if( isset( $_GET['updateBtn'] ) ){
 						}
 					});
 				});
-
-
-
 				$(document).on("click","#addBtn",function(){
 					$("#registarModal").fadeIn();
 				});
